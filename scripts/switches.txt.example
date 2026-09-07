@@ -1,0 +1,4 @@
+# One management switch per line:
+# <ip-or-host>, [display name], [SNMP community]
+192.0.2.10, Lab switch 1, public
+192.0.2.11, Lab switch 2, public

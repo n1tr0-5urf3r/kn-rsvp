@@ -1,0 +1,13 @@
+services:
+  rsvp:
+    image: unituekn/rsvp:latest
+    pull_policy: always
+    ports:
+      - "${HOST_PORT:-4343}:3000"
+    env_file: .env
+    restart: unless-stopped
+    extra_hosts:
+      - "${OIDC_EXTRA_HOST:-host.docker.internal:host-gateway}"
+    volumes:
+      # Bind mount: the SQLite DB is a plain file on the host at ${DATA_DIR}/rsvp.db
+      - ${DATA_DIR:-./data}:/app/data

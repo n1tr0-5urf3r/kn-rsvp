@@ -1,0 +1,157 @@
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import { describe, expect, it, vi } from 'vitest'
+import type { ServerWithNics } from '../api/types'
+import { isManagementNic, NicTable } from './NicTable'
+
+const server: ServerWithNics = {
+  id: 'chucky',
+  name: 'chucky',
+  description: '',
+  cpu_model: '',
+  cpu_sockets: null,
+  cpu_cores: null,
+  cpu_threads: null,
+  cpu_mhz: null,
+  memory_gb: null,
+  reservable: false,
+  sort_order: 0,
+  nics: [
+    {
+      id: 'nic-81-1',
+      server_id: 'chucky',
+      name: '81.1',
+      ifname: 'enp129s0f1np1',
+      pci_address: '0000:81:00.1',
+      nic_type: 'ConnectX-6 Dx',
+      speed_gbps: 100,
+      mac: '00:11:22:33:44:55',
+      numa_node: 1,
+      kind: 'pf',
+      usage: 'DPDK',
+      peer_port_id: null,
+      peer_port_tofino_id: null,
+      peer_port_label: null,
+      peer_nic_id: null,
+      peer_nic_server_id: null,
+      peer_nic_label: null,
+      peer_mgmt_port_id: null,
+      peer_mgmt_switch_id: null,
+      peer_mgmt_port_label: null,
+      sort_order: 0,
+      claim: null,
+    },
+  ],
+}
+
+describe('isManagementNic', () => {
+  it('matches the Management usage label without depending on case or spacing', () => {
+    expect(isManagementNic({ usage: 'Management' })).toBe(true)
+    expect(isManagementNic({ usage: ' management ' })).toBe(true)
+  })
+
+  it('keeps NICs with other usage labels visible', () => {
+    expect(isManagementNic({ usage: 'DPDK' })).toBe(false)
+    expect(isManagementNic({ usage: '' })).toBe(false)
+  })
+
+  it('shows inventory name, interface, and PCI address separately', () => {
+    render(
+      <MemoryRouter>
+        <NicTable server={server} />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByRole('columnheader', { name: 'Name / alias' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('columnheader', { name: 'Interface' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('columnheader', { name: 'PCI address' }),
+    ).toBeInTheDocument()
+
+    const row = screen.getByRole('row', { name: /81\.1/ })
+    expect(within(row).getByText('81.1')).toBeInTheDocument()
+    expect(within(row).getByText('enp129s0f1np1')).toBeInTheDocument()
+    expect(within(row).getByText('0000:81:00.1')).toBeInTheDocument()
+  })
+
+  it('opens the configuration dialog from the Configure action', () => {
+    const onConfigure = vi.fn()
+    render(
+      <MemoryRouter>
+        <NicTable server={server} isAdmin onConfigure={onConfigure} />
+      </MemoryRouter>,
+    )
+
+    const row = screen.getByRole('row', { name: /81\.1/ })
+    fireEvent.click(
+      within(row).getByRole('button', { name: 'Configure 81.1' }),
+    )
+
+    expect(onConfigure).toHaveBeenCalledWith(server.nics[0])
+  })
+
+  it('shows usage and speed as plain values for admins', () => {
+    render(
+      <MemoryRouter>
+        <NicTable server={server} isAdmin onConfigure={vi.fn()} />
+      </MemoryRouter>,
+    )
+
+    const row = screen.getByRole('row', { name: /81\.1/ })
+    expect(within(row).getByText('DPDK')).toBeInTheDocument()
+    expect(within(row).getByText('100 Gbit/s')).toBeInTheDocument()
+    expect(
+      within(row).queryByRole('button', { name: /Edit (usage|speed)/ }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('treats a claim row without an owner as free', () => {
+    const documented: ServerWithNics = {
+      ...server,
+      nics: [
+        {
+          ...server.nics[0],
+          claim: {
+            user_id: null,
+            user_display_name: '',
+            connected_to: '',
+            cable_label: 'A12',
+            comment: 'Debug host',
+            updated_at: 0,
+          },
+        },
+      ],
+    }
+    render(
+      <MemoryRouter>
+        <NicTable server={documented} isAdmin onConfigure={vi.fn()} />
+      </MemoryRouter>,
+    )
+
+    const row = screen.getByRole('row', { name: /81\.1/ })
+    expect(within(row).getByText('free')).toBeInTheDocument()
+    expect(within(row).getByText('A12')).toBeInTheDocument()
+    // Nothing to release when nobody holds it.
+    expect(
+      within(row).queryByRole('button', { name: /Release/ }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps the speed read-only for non-admins', () => {
+    render(
+      <MemoryRouter>
+        <NicTable server={server} />
+      </MemoryRouter>,
+    )
+
+    const row = screen.getByRole('row', { name: /81\.1/ })
+    expect(within(row).getByText('100 Gbit/s')).toBeInTheDocument()
+    expect(
+      within(row).queryByRole('button', { name: /Edit speed/ }),
+    ).not.toBeInTheDocument()
+  })
+})

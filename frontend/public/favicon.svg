@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generic fallback. Deployments can set APP_FAVICON_URL in .env. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#c2284a" />
+  <!-- small network/plug glyph -->
+  <g stroke="#f7f3ea" stroke-width="4" stroke-linecap="round" fill="none">
+    <circle cx="20" cy="20" r="5" fill="#f7f3ea" stroke="none" />
+    <circle cx="44" cy="20" r="5" fill="#f7f3ea" stroke="none" />
+    <circle cx="32" cy="38" r="5" fill="#f7f3ea" stroke="none" />
+    <path d="M20 20 L32 38 L44 20" />
+  </g>
+  <text x="32" y="57" text-anchor="middle" font-family="Manrope, sans-serif" font-size="13" font-weight="800" fill="#f7f3ea">rsvp</text>
+</svg>

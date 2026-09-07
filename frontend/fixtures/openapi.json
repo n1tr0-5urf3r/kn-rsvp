@@ -1,0 +1,4061 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "rsvp",
+    "description": "",
+    "license": {
+      "name": "AGPL-3.0-only",
+      "identifier": "AGPL-3.0-only"
+    },
+    "version": "1.4.0"
+  },
+  "paths": {
+    "/api/v1/admin/caldav/calendars": {
+      "get": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "list_calendars",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "create_calendar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCalendarRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/caldav/calendars/{id}": {
+      "delete": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "delete_calendar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Calendar deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "update_calendar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCalendarRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/caldav/calendars/{id}/test": {
+      "post": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "test_calendar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/caldav/resync": {
+      "post": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "resync",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/caldav/status": {
+      "get": {
+        "tags": [
+          "caldav"
+        ],
+        "operationId": "caldav_status",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaldavStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/management-switch-ports/{id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "management_update_port",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePortRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagementPortView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Port already documented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/management-switches": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "create_switch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateManagementSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagementSwitchView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/management-switches/{id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_switch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Switch deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "update_switch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateManagementSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagementSwitchView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/management-switches/{id}/import": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "import_switch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSwitchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/management-switches/{id}/ports": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "management_create_port",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePortRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagementPortView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Port already documented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/nics/{id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_nic",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "NIC deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "update_nic",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNicRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NicView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/nics/{id}/claim": {
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "put_nic_claim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NicClaimRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NicClaimView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_nic_claim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Claim released"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/servers": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "create_server",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateServerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerWithNics"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/servers/{id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_server",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Server deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "update_server",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerWithNics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/servers/{id}/nics": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "create_nic",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNicRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NicView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/settings": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "get_settings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "put_settings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown settings key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/tofino-ports/{id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_port",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Port deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "update_port",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePortRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TofinoPortView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Port already documented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/tofinos": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "create_tofino",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTofinoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TofinoView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/tofinos/{id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_tofino",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Tofino deleted"
+          },
+          "409": {
+            "description": "Tofino has future bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "update_tofino",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTofinoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TofinoView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/tofinos/{id}/ports": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "create_port",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePortRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TofinoPortView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Port already documented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/tofinos/{id}/ports/import": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "import_ports",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportPortsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPortsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unparsable table",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "list_users",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/vlans": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "create_vlan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VlanView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/vlans/{id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "delete_vlan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "VLAN deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "operationId": "update_vlan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VlanView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/callback": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "callback",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Authorization code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "CSRF state token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Creates a session and redirects to / or /login?error=forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/dev-login": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "dev_login",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Dev user name (default: dev)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin",
+            "in": "query",
+            "description": "Truthy value grants admin",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Creates a dev session and redirects to /"
+          },
+          "404": {
+            "description": "Dev mode is disabled"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "login",
+        "responses": {
+          "307": {
+            "description": "Redirects to the Authentik authorization endpoint"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "logout",
+        "responses": {
+          "204": {
+            "description": "Session terminated"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings": {
+      "get": {
+        "tags": [
+          "bookings"
+        ],
+        "operationId": "list_bookings",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Only bookings ending after this unix timestamp.",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Only bookings starting before this unix timestamp.",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tofino_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "server_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "bookings"
+        ],
+        "operationId": "create_booking",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid alignment, range, or duration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Overlaps existing booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{id}": {
+      "delete": {
+        "tags": [
+          "bookings"
+        ],
+        "operationId": "delete_booking",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "bookings"
+        ],
+        "operationId": "update_booking",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBookingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Overlaps existing booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/config": {
+      "get": {
+        "tags": [
+          "misc"
+        ],
+        "operationId": "public_config",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "misc"
+        ],
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/management-switch-ports": {
+      "get": {
+        "tags": [
+          "management"
+        ],
+        "operationId": "management_list_ports",
+        "parameters": [
+          {
+            "name": "switch_id",
+            "in": "query",
+            "description": "Restrict to one switch; omit for every port (peer picker / topology).",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagementPortsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/management-switches": {
+      "get": {
+        "tags": [
+          "management"
+        ],
+        "operationId": "list_switches",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagementSwitchesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/servers": {
+      "get": {
+        "tags": [
+          "devices"
+        ],
+        "operationId": "list_servers",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tofino-ports": {
+      "get": {
+        "tags": [
+          "devices"
+        ],
+        "operationId": "list_ports",
+        "parameters": [
+          {
+            "name": "tofino_id",
+            "in": "query",
+            "description": "Restrict to one Tofino; omit for every port (peer picker).",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TofinoPortsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tofinos": {
+      "get": {
+        "tags": [
+          "devices"
+        ],
+        "operationId": "list_tofinos",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TofinosResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vlans": {
+      "get": {
+        "tags": [
+          "management"
+        ],
+        "operationId": "list_vlans",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VlansResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BookingView": {
+        "type": "object",
+        "required": [
+          "id",
+          "resource_type",
+          "resource_id",
+          "resource_name",
+          "user_id",
+          "user_display_name",
+          "start_ts",
+          "end_ts",
+          "comment",
+          "created_at"
+        ],
+        "properties": {
+          "comment": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "end_ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": "string"
+          },
+          "resource_name": {
+            "type": "string"
+          },
+          "resource_type": {
+            "type": "string"
+          },
+          "server_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "server_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "start_ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tofino_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tofino_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tofino_version": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "user_display_name": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        }
+      },
+      "BookingsResponse": {
+        "type": "object",
+        "required": [
+          "bookings"
+        ],
+        "properties": {
+          "bookings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingView"
+            }
+          }
+        }
+      },
+      "CaldavStatusResponse": {
+        "type": "object",
+        "required": [
+          "pending",
+          "error",
+          "synced",
+          "items"
+        ],
+        "properties": {
+          "error": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueueItemView"
+            }
+          },
+          "last_run_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "pending": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "synced": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CalendarTestResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CalendarView": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "caldav_url",
+          "username",
+          "enabled",
+          "has_password",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "caldav_url": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "has_password": {
+            "type": "boolean",
+            "description": "The app password is write-only and never returned."
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "CalendarsResponse": {
+        "type": "object",
+        "required": [
+          "calendars"
+        ],
+        "properties": {
+          "calendars": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarView"
+            }
+          }
+        }
+      },
+      "CreateBookingRequest": {
+        "type": "object",
+        "required": [
+          "start_ts",
+          "end_ts"
+        ],
+        "properties": {
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "end_ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "server_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "start_ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tofino_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set exactly one of `tofino_id` and `server_id`."
+          }
+        }
+      },
+      "CreateCalendarRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "caldav_url",
+          "username",
+          "app_password"
+        ],
+        "properties": {
+          "app_password": {
+            "type": "string"
+          },
+          "caldav_url": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateManagementSwitchRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "active": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "mgmt_ip": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "num_ports": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Create-only: auto-generate this many front-panel ports named \"1\"..\"N\".",
+            "minimum": 0
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "CreateNicRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "pci_address",
+          "nic_type",
+          "speed_gbps"
+        ],
+        "properties": {
+          "ifname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "\"pf\" (default) or \"vf\"."
+          },
+          "mac": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "nic_type": {
+            "type": "string"
+          },
+          "numa_node": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Negative values mean \"no affinity\" and are stored as null."
+          },
+          "pci_address": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": "number",
+            "format": "double"
+          },
+          "usage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "CreatePortRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "cable_label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ifindex": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "ifname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "CreateServerRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "cpu_cores": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "cpu_mhz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "cpu_model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cpu_sockets": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "cpu_threads": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "memory_gb": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "name": {
+            "type": "string"
+          },
+          "reservable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "CreateTofinoRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "active": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreateVlanRequest": {
+        "type": "object",
+        "required": [
+          "vlan_id"
+        ],
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vlan_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CurrentUser": {
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "display_name",
+          "is_admin"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "is_admin": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "version"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "ImportPort": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "ifindex": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "ifname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "speed_gbps": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "vlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortVlanInput"
+            }
+          }
+        }
+      },
+      "ImportPortsRequest": {
+        "type": "object",
+        "required": [
+          "markdown"
+        ],
+        "properties": {
+          "markdown": {
+            "type": "string",
+            "description": "A Markdown port table, or a whole tofino.md — the section named after\nthis Tofino wins."
+          }
+        }
+      },
+      "ImportPortsResponse": {
+        "type": "object",
+        "required": [
+          "created",
+          "updated",
+          "unresolved"
+        ],
+        "properties": {
+          "created": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unresolved": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "\"Plugged into\" values that matched no port or NIC and were kept as text."
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ImportSwitchRequest": {
+        "type": "object",
+        "properties": {
+          "mgmt_ip": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Fill-gaps metadata for the switch itself (never overwrites a set value)."
+          },
+          "model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportPort"
+            },
+            "description": "Ports discovered on the switch, with their VLAN membership."
+          },
+          "vlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportVlan"
+            },
+            "description": "VLANs to upsert into the global database, by 802.1Q number."
+          }
+        }
+      },
+      "ImportSwitchResponse": {
+        "type": "object",
+        "required": [
+          "vlans_created",
+          "ports_created",
+          "ports_updated"
+        ],
+        "properties": {
+          "ports_created": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ports_updated": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vlans_created": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ImportVlan": {
+        "type": "object",
+        "required": [
+          "vlan_id"
+        ],
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vlan_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ManagementPortView": {
+        "type": "object",
+        "required": [
+          "id",
+          "switch_id",
+          "switch_name",
+          "name",
+          "ifname",
+          "speed_gbps",
+          "cable_label",
+          "peer_text",
+          "peer_label",
+          "comment",
+          "sort_order",
+          "updated_at",
+          "vlans"
+        ],
+        "properties": {
+          "cable_label": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "ifindex": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "ifname": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Port label, e.g. \"1\" / \"Gi0/1\"."
+          },
+          "peer_label": {
+            "type": "string",
+            "description": "Display label of whatever this port is plugged into; empty when unplugged."
+          },
+          "peer_nic_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set when cabled to a server NIC."
+          },
+          "peer_nic_server_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer_port_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set when cabled to another management-switch port."
+          },
+          "peer_port_switch_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer_server_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set when plugged into a whole server (no specific NIC), e.g. its IPMI port."
+          },
+          "peer_text": {
+            "type": "string",
+            "description": "Free-text peer, used when none of the structured peers is referenced."
+          },
+          "peer_tofino_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set when cabled to a Tofino's management port."
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": "number",
+            "format": "double"
+          },
+          "switch_id": {
+            "type": "string"
+          },
+          "switch_name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "updated_by_display_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortVlanView"
+            }
+          }
+        }
+      },
+      "ManagementPortsResponse": {
+        "type": "object",
+        "required": [
+          "ports"
+        ],
+        "properties": {
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagementPortView"
+            }
+          }
+        }
+      },
+      "ManagementSwitchView": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "mgmt_ip",
+          "model",
+          "notes",
+          "active",
+          "sort_order",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "mgmt_ip": {
+            "type": "string",
+            "description": "Management IP or hostname; empty when not documented."
+          },
+          "model": {
+            "type": "string",
+            "description": "Vendor/model, e.g. \"Aruba 6300M\"; empty when not documented."
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ManagementSwitchesResponse": {
+        "type": "object",
+        "required": [
+          "switches"
+        ],
+        "properties": {
+          "switches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagementSwitchView"
+            }
+          }
+        }
+      },
+      "MeResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CurrentUser"
+              }
+            ]
+          }
+        }
+      },
+      "NicClaimRequest": {
+        "type": "object",
+        "properties": {
+          "assignee_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Free-form assignee for people or projects without an account."
+          },
+          "cable_label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "connected_to": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NicPeerInput",
+                "description": "Structured cabling update. Omit to preserve the current link."
+              }
+            ]
+          },
+          "user_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Authentik-backed user when one is available."
+          }
+        }
+      },
+      "NicClaimView": {
+        "type": "object",
+        "required": [
+          "user_display_name",
+          "connected_to",
+          "cable_label",
+          "comment",
+          "updated_at"
+        ],
+        "properties": {
+          "cable_label": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "connected_to": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "user_display_name": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "NicPeerInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "none"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "port_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "port"
+                ]
+              },
+              "port_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A management-switch port (`management_switch_ports.id`).",
+            "required": [
+              "port_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "mgmt"
+                ]
+              },
+              "port_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "nic_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "nic"
+                ]
+              },
+              "nic_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "text",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "description": "What the server NIC is plugged into. Tofino-port and management-port links\nare stored in the respective port maps and therefore appear from both\nsides."
+      },
+      "NicView": {
+        "type": "object",
+        "required": [
+          "id",
+          "server_id",
+          "name",
+          "pci_address",
+          "nic_type",
+          "speed_gbps",
+          "ifname",
+          "mac",
+          "kind",
+          "usage",
+          "sort_order"
+        ],
+        "properties": {
+          "claim": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NicClaimView"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "ifname": {
+            "type": "string",
+            "description": "Kernel interface name, e.g. \"ens65f0np0\"."
+          },
+          "kind": {
+            "type": "string",
+            "description": "\"pf\" for a physical function, \"vf\" for an SR-IOV virtual function."
+          },
+          "mac": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nic_type": {
+            "type": "string"
+          },
+          "numa_node": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "NUMA node; null when unknown or the NIC has no affinity."
+          },
+          "pci_address": {
+            "type": "string"
+          },
+          "peer_mgmt_port_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Management-switch port cabled to this NIC, derived from the management\nport map (read-only mirror, edited from the management-switch side)."
+          },
+          "peer_mgmt_port_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Display label such as \"MgmtSwitch1 12\"."
+          },
+          "peer_mgmt_switch_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer_nic_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Server NIC cabled directly to this NIC."
+          },
+          "peer_nic_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Display label such as \"Pennywise 65.1\"."
+          },
+          "peer_nic_server_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer_port_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tofino port cabled to this NIC, derived from the port map."
+          },
+          "peer_port_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Display label such as \"Donnie 3/0\"."
+          },
+          "peer_port_tofino_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "server_id": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": "number",
+            "format": "double"
+          },
+          "usage": {
+            "type": "string",
+            "description": "Who uses this NIC: the VM it is passed through to (\"281 (kuppler-2)\")\nor a role such as \"Management\". Belongs to this NIC alone and is never\ncopied to the other end of a link."
+          }
+        }
+      },
+      "PeerInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "none"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "port_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "port"
+                ]
+              },
+              "port_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "nic_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "nic"
+                ]
+              },
+              "nic_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "tofino_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "tofino"
+                ]
+              },
+              "tofino_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A whole server, with no specific NIC/interface (e.g. its dedicated\nIPMI/BMC port). Not mirrored — the server has no back-link.",
+            "required": [
+              "server_id",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "server"
+                ]
+              },
+              "server_id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "text",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "description": "What a port is plugged into. `port`/`tofino` links are mirrored onto the\nother end."
+      },
+      "PortVlanInput": {
+        "type": "object",
+        "required": [
+          "vlan_id",
+          "tagged"
+        ],
+        "properties": {
+          "tagged": {
+            "type": "boolean"
+          },
+          "vlan_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PortVlanView": {
+        "type": "object",
+        "required": [
+          "vlan_id",
+          "vlan_db_id",
+          "name",
+          "purpose",
+          "tagged"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "tagged": {
+            "type": "boolean",
+            "description": "true = tagged (trunk), false = untagged (native/access)."
+          },
+          "vlan_db_id": {
+            "type": "string",
+            "description": "Row id in the global VLAN database."
+          },
+          "vlan_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "802.1Q VLAN number."
+          }
+        }
+      },
+      "PublicConfigResponse": {
+        "type": "object",
+        "required": [
+          "app_name",
+          "app_subtitle",
+          "app_tagline",
+          "favicon_url",
+          "repository_url",
+          "topology_switch_order",
+          "topology_uplink_labels"
+        ],
+        "properties": {
+          "app_name": {
+            "type": "string"
+          },
+          "app_subtitle": {
+            "type": "string"
+          },
+          "app_tagline": {
+            "type": "string"
+          },
+          "favicon_url": {
+            "type": "string"
+          },
+          "logo_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "repository_url": {
+            "type": "string"
+          },
+          "topology_central_node": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "topology_preferred_uplink": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "topology_switch_order": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "topology_uplink_labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "QueueItemView": {
+        "type": "object",
+        "required": [
+          "id",
+          "calendar_id",
+          "calendar_name",
+          "ics_uid",
+          "action",
+          "status",
+          "attempts",
+          "updated_at"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "attempts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "calendar_id": {
+            "type": "string"
+          },
+          "calendar_name": {
+            "type": "string"
+          },
+          "ics_uid": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "last_attempt_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "last_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResyncResponse": {
+        "type": "object",
+        "required": [
+          "enqueued"
+        ],
+        "properties": {
+          "enqueued": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of queue rows (bookings × enabled calendars) enqueued."
+          }
+        }
+      },
+      "ServerWithNics": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "cpu_model",
+          "reservable",
+          "sort_order",
+          "created_at",
+          "updated_at",
+          "nics"
+        ],
+        "properties": {
+          "cpu_cores": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Physical cores across all sockets."
+          },
+          "cpu_mhz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double",
+            "description": "Maximum clock in MHz."
+          },
+          "cpu_model": {
+            "type": "string",
+            "description": "e.g. \"AMD EPYC 7443P 24-Core Processor\"; empty when not documented."
+          },
+          "cpu_sockets": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "cpu_threads": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Logical CPUs (cores × threads per core)."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "memory_gb": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double",
+            "description": "Usable RAM in GiB, as the kernel reports it."
+          },
+          "name": {
+            "type": "string"
+          },
+          "nics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NicView"
+            }
+          },
+          "reservable": {
+            "type": "boolean",
+            "description": "Whether regular users can reserve this whole server by the hour."
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ServersResponse": {
+        "type": "object",
+        "required": [
+          "servers"
+        ],
+        "properties": {
+          "servers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServerWithNics"
+            }
+          }
+        }
+      },
+      "SettingsResponse": {
+        "type": "object",
+        "required": [
+          "settings"
+        ],
+        "properties": {
+          "settings": {
+            "type": "object",
+            "description": "All known settings as a key → value map.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TofinoPortView": {
+        "type": "object",
+        "required": [
+          "id",
+          "tofino_id",
+          "tofino_name",
+          "fp_port",
+          "dev_port",
+          "pipe",
+          "speed_gbps",
+          "cable_label",
+          "peer_text",
+          "peer_label",
+          "comment",
+          "sort_order",
+          "updated_at"
+        ],
+        "properties": {
+          "cable_label": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "dev_port": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fp_port": {
+            "type": "string",
+            "description": "Front-panel port, e.g. \"1/0\"."
+          },
+          "id": {
+            "type": "string"
+          },
+          "peer_label": {
+            "type": "string",
+            "description": "Display label of whatever this port is plugged into (\"Donnie 3/0\",\n\"Pennywise 65.1\", or the free text); empty when unplugged."
+          },
+          "peer_nic_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set when this port is cabled to a server NIC."
+          },
+          "peer_nic_server_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer_port_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set when this port is cabled to another Tofino port."
+          },
+          "peer_port_tofino_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer_text": {
+            "type": "string",
+            "description": "Free-text peer, used when neither a port nor a NIC is referenced."
+          },
+          "pipe": {
+            "type": "string",
+            "description": "Pipe/lane, e.g. \"2/4\"."
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": "number",
+            "format": "double",
+            "description": "Link speed in Gbit/s; 0 means \"not documented\"."
+          },
+          "tofino_id": {
+            "type": "string"
+          },
+          "tofino_name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "updated_by_display_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "TofinoPortsResponse": {
+        "type": "object",
+        "required": [
+          "ports"
+        ],
+        "properties": {
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TofinoPortView"
+            }
+          }
+        }
+      },
+      "TofinoView": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "notes",
+          "active",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "mgmt_peer_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Management-switch port this Tofino's management port is cabled to,\ne.g. \"MgmtSwitch1 12\"; null when unplugged. Read-only mirror, edited\nfrom the management-switch port side."
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "TofinosResponse": {
+        "type": "object",
+        "required": [
+          "tofinos"
+        ],
+        "properties": {
+          "tofinos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TofinoView"
+            }
+          }
+        }
+      },
+      "UpdateBookingRequest": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "end_ts": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "start_ts": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "UpdateCalendarRequest": {
+        "type": "object",
+        "properties": {
+          "app_password": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Empty or missing keeps the stored password."
+          },
+          "caldav_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "username": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "UpdateManagementSwitchRequest": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "mgmt_ip": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "UpdateNicRequest": {
+        "type": "object",
+        "properties": {
+          "ifname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "mac": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nic_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "numa_node": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "pci_address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "usage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "UpdatePortRequest": {
+        "type": "object",
+        "properties": {
+          "cable_label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ifindex": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "ifname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "peer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PeerInput",
+                "description": "Replaces the whole \"plugged into\" side when present."
+              }
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "speed_gbps": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "vlans": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PortVlanInput"
+            },
+            "description": "Replaces the whole VLAN membership set when present."
+          }
+        }
+      },
+      "UpdateServerRequest": {
+        "type": "object",
+        "properties": {
+          "cpu_cores": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "cpu_mhz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "cpu_model": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Zero or negative numerics clear the field."
+          },
+          "cpu_sockets": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "cpu_threads": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "memory_gb": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reservable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "UpdateSettingsRequest": {
+        "type": "object",
+        "required": [
+          "settings"
+        ],
+        "properties": {
+          "settings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateTofinoRequest": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "UpdateVlanRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vlan_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "UserSummary": {
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "display_name",
+          "is_admin"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "is_admin": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "UsersResponse": {
+        "type": "object",
+        "required": [
+          "users"
+        ],
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserSummary"
+            }
+          }
+        }
+      },
+      "VlanView": {
+        "type": "object",
+        "required": [
+          "id",
+          "vlan_id",
+          "name",
+          "purpose",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vlan_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "802.1Q VLAN number, 1..4094."
+          }
+        }
+      },
+      "VlansResponse": {
+        "type": "object",
+        "required": [
+          "vlans"
+        ],
+        "properties": {
+          "vlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VlanView"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication"
+    },
+    {
+      "name": "devices",
+      "description": "Servers, NICs, and Tofinos"
+    },
+    {
+      "name": "bookings",
+      "description": "Tofino and reservable-server bookings"
+    },
+    {
+      "name": "admin",
+      "description": "Admin management"
+    },
+    {
+      "name": "caldav",
+      "description": "CalDAV sync administration"
+    },
+    {
+      "name": "management",
+      "description": "Management switches, ports, and VLANs (admin-only)"
+    },
+    {
+      "name": "misc",
+      "description": "Miscellaneous"
+    }
+  ]
+}
