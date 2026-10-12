@@ -34,6 +34,7 @@ pub fn openapi_json() -> String {
         devices::delete_nic,
         devices::put_nic_claim,
         devices::delete_nic_claim,
+        devices::free_nic,
         devices::create_tofino,
         devices::update_tofino,
         devices::delete_tofino,

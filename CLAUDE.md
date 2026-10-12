@@ -4,7 +4,7 @@ Guidance for working in this repository.
 
 ## What this is
 
-**rsvp** is a self-hosted hardware reservation and testbed-inventory application. It combines hourly bookings, server/NIC claims, programmable-switch port maps, physical and management topology, VLAN inventory, Authentik OIDC, and one-way Nextcloud CalDAV sync. Deployment branding and infrastructure-specific values belong in `.env` or the persistent data directory, never in schema migrations. Current version **1.4.0** (kept in sync between `backend/Cargo.toml`, `backend/Cargo.lock`, `frontend/package.json`, and `frontend/package-lock.json`). Commits follow Conventional Commits.
+**rsvp** is a self-hosted hardware reservation and testbed-inventory application. It combines hourly bookings, server/NIC claims, programmable-switch port maps, physical and management topology, VLAN inventory, Authentik OIDC, and one-way Nextcloud CalDAV sync. Deployment branding and infrastructure-specific values belong in `.env` or the persistent data directory, never in schema migrations. Current version **1.5.0** (kept in sync between `backend/Cargo.toml`, `backend/Cargo.lock`, `frontend/package.json`, and `frontend/package-lock.json`). Commits follow Conventional Commits.
 
 ## Architecture
 
@@ -100,7 +100,7 @@ Env is read from the process environment (`Config::from_env`, no dotenv loader);
 
 > A `nic_claims` row is **NIC documentation, not proof of ownership**: it may have no `user_id` and an empty `assignee_name` when it only carries the cable label/comment of a link. Test with `claimOwner(nic.claim)` (frontend) rather than `nic.claim !== null`, or free NICs render as claimed by nobody.
 
-> Releasing a claim on a **cabled** NIC keeps the row (owner cleared) so the shared cable documentation survives; on an uncabled NIC the row is deleted as before.
+> Releasing a claim on a **cabled** NIC keeps the row (owner cleared) so the shared cable documentation survives; on an uncabled NIC the row is deleted as before. **Free NIC** (`POST /admin/nics/{id}/free`, the UI's only one-click action) removes everything instead: the claim row, the NIC's own "Used by" label, the link (Tofino port, NIC, or management port), and the cable label and comment on both ends — a peer NIC keeps its owner and its own "Used by".
 
 > Adjacent bookings are **legal**: overlap is `start < other.end AND end > other.start`, so `end == start` back-to-back bookings must succeed (there's a test for it).
 

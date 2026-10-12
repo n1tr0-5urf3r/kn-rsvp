@@ -10,6 +10,40 @@ export function isManagementNic(nic: Pick<NicView, 'usage'>): boolean {
   return nic.usage.trim().toLowerCase() === 'management'
 }
 
+/** Free means nobody owns it — the same rule as the "free" User cell. */
+export function isFreeNic(nic: Pick<NicView, 'claim'>): boolean {
+  return claimOwner(nic.claim) === null
+}
+
+/**
+ * Anything "Free NIC" would remove: a claim row (owner, cable, comment), a
+ * link, or the "used by" label.
+ */
+export function hasAssignment(
+  nic: Pick<
+    NicView,
+    'claim' | 'usage' | 'peer_port_id' | 'peer_nic_id' | 'peer_mgmt_port_id'
+  >,
+): boolean {
+  return Boolean(
+    nic.claim ||
+      nic.usage.trim() ||
+      nic.peer_port_id ||
+      nic.peer_nic_id ||
+      nic.peer_mgmt_port_id,
+  )
+}
+
+export function filterNics<T extends Pick<NicView, 'usage' | 'claim'>>(
+  nics: T[],
+  { showManagement, onlyFree }: { showManagement: boolean; onlyFree: boolean },
+): T[] {
+  return nics.filter(
+    (nic) =>
+      (showManagement || !isManagementNic(nic)) && (!onlyFree || isFreeNic(nic)),
+  )
+}
+
 function FunctionBadge({ nic }: { nic: NicView }) {
   return nic.kind === 'vf' ? (
     <span
@@ -67,11 +101,11 @@ function Speed({ nic }: { nic: NicView }) {
 function NicActions({
   nic,
   onConfigure,
-  onRelease,
+  onFree,
 }: {
   nic: NicView
   onConfigure?: (nic: NicView) => void
-  onRelease?: (nic: NicView) => void
+  onFree?: (nic: NicView) => void
 }) {
   const owner = claimOwner(nic.claim)
   return (
@@ -89,15 +123,15 @@ function NicActions({
         )}
         {owner ? 'Edit' : 'Configure'}
       </Button>
-      {owner ? (
+      {hasAssignment(nic) ? (
         <Button
           variant="ghost"
           className="min-h-9 px-3 text-xs"
-          onClick={() => onRelease?.(nic)}
-          aria-label={`Release claim on ${nic.name}`}
+          onClick={() => onFree?.(nic)}
+          aria-label={`Free ${nic.name}`}
         >
           <Unplug className="size-4" aria-hidden="true" />
-          Release
+          Free NIC
         </Button>
       ) : null}
     </div>
@@ -125,19 +159,21 @@ export function NicTable({
   server,
   isAdmin = false,
   showManagement = false,
+  onlyFree = false,
   onConfigure,
-  onRelease,
+  onFree,
 }: {
   server: ServerWithNics
   isAdmin?: boolean
   showManagement?: boolean
+  /** Hides NICs that somebody owns. */
+  onlyFree?: boolean
   /** Opens the NIC configuration dialog (usage, speed, owner, cabling). */
   onConfigure?: (nic: NicView) => void
-  onRelease?: (nic: NicView) => void
+  /** Clears claim and "used by" and unplugs the NIC's cable on both ends. */
+  onFree?: (nic: NicView) => void
 }) {
-  const visibleNics = showManagement
-    ? server.nics
-    : server.nics.filter((nic) => !isManagementNic(nic))
+  const visibleNics = filterNics(server.nics, { showManagement, onlyFree })
 
   if (server.nics.length === 0) {
     return (
@@ -150,7 +186,9 @@ export function NicTable({
   if (visibleNics.length === 0) {
     return (
       <p className="text-sm font-bold text-berry-700/70 dark:text-rose-100/70">
-        Management NICs are hidden by the current filter.
+        {onlyFree
+          ? 'No free NICs match the current filter.'
+          : 'Management NICs are hidden by the current filter.'}
       </p>
     )
   }
@@ -211,7 +249,7 @@ export function NicTable({
                 <NicActions
                   nic={nic}
                   onConfigure={onConfigure}
-                  onRelease={onRelease}
+                  onFree={onFree}
                 />
               </div>
             ) : null}
@@ -297,7 +335,7 @@ export function NicTable({
                     <NicActions
                       nic={nic}
                       onConfigure={onConfigure}
-                      onRelease={onRelease}
+                      onFree={onFree}
                     />
                   </td>
                 ) : null}

@@ -11,6 +11,7 @@ function nic(
   id: string,
   serverId: string,
   comment: string,
+  owner = '',
 ): NicView {
   return {
     id,
@@ -36,7 +37,7 @@ function nic(
     sort_order: 0,
     claim: {
       user_id: null,
-      user_display_name: '',
+      user_display_name: owner,
       connected_to: null,
       cable_label: null,
       comment,
@@ -60,7 +61,10 @@ const servers: ServerWithNics[] = ['Pennywise', 'Chucky'].map(
       memory_gb: null,
       reservable: false,
       sort_order: index,
-      nics: [nic(`${id}-nic`, id, 'Fabric uplink')],
+      // Only Pennywise's NIC has an owner.
+      nics: [
+        nic(`${id}-nic`, id, 'Fabric uplink', index === 0 ? 'Robin' : ''),
+      ],
     }
   },
 )
@@ -136,5 +140,33 @@ describe('ServersPage', () => {
     expect(
       screen.getByRole('button', { name: /Chucky NIC chucky-nic/ }),
     ).toHaveAttribute('data-comment-highlighted', 'true')
+  })
+
+  it('narrows the overview and tables to free NICs', async () => {
+    const user = userEvent.setup()
+    mockApi()
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <MemoryRouter>
+            <ServersPage />
+          </MemoryRouter>
+        </ToastProvider>
+      </QueryClientProvider>,
+    )
+
+    await screen.findByLabelText('Pennywise PCI adapter map')
+    await user.click(screen.getByRole('checkbox', { name: 'Only free NICs' }))
+
+    expect(
+      screen.queryByLabelText('Pennywise PCI adapter map'),
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Chucky PCI adapter map')).toBeInTheDocument()
+    expect(
+      screen.getAllByText('No free NICs match the current filter.'),
+    ).toHaveLength(2)
   })
 })

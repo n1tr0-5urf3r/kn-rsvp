@@ -1523,3 +1523,157 @@ async fn cable_documentation_follows_the_link_to_both_endpoints() {
     let (_, body) = request(&app, "GET", "/api/v1/servers", Some(&admin), None).await;
     assert_eq!(server_by_id(&body, &servers[1])["nics"][0]["usage"], "DPDK");
 }
+
+#[tokio::test]
+async fn freeing_a_nic_removes_everything_on_both_ends() {
+    let (_state, app) = test_app().await;
+    let admin = login(&app, "admin", true).await;
+    let tofino = create_tofino(&app, &admin, "Free").await;
+    let (_, port) = request(
+        &app,
+        "POST",
+        &format!("/api/v1/admin/tofinos/{tofino}/ports"),
+        Some(&admin),
+        Some(json!({"fp_port": "23/0", "dev_port": 4})),
+    )
+    .await;
+    let port_id = port["id"].as_str().unwrap().to_string();
+
+    let (_, server) = request(
+        &app,
+        "POST",
+        "/api/v1/admin/servers",
+        Some(&admin),
+        Some(json!({"name": "free-host"})),
+    )
+    .await;
+    let server_id = server["id"].as_str().unwrap().to_string();
+    let mut nics = Vec::new();
+    for index in 0..3 {
+        let (_, nic) = request(
+            &app,
+            "POST",
+            &format!("/api/v1/admin/servers/{server_id}/nics"),
+            Some(&admin),
+            Some(json!({
+                "name": format!("82.{index}"),
+                "pci_address": format!("0000:82:00.{index}"),
+                "nic_type": "E810",
+                "speed_gbps": 100,
+                "usage": "118 (springel-dpdk-3)"
+            })),
+        )
+        .await;
+        nics.push(nic["id"].as_str().unwrap().to_string());
+    }
+    let nic_by_id = |body: &Value, id: &str| -> Value {
+        server_by_id(body, &server_id)["nics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|nic| nic["id"] == id)
+            .unwrap()
+            .clone()
+    };
+
+    // NIC 0 is claimed and cabled to the Tofino port.
+    let (status, _) = request(
+        &app,
+        "PUT",
+        &format!("/api/v1/admin/nics/{}/claim", nics[0]),
+        Some(&admin),
+        Some(json!({
+            "assignee_name": "Robin",
+            "peer": {"kind": "port", "port_id": port_id},
+            "cable_label": "A5",
+            "comment": "DPDK"
+        })),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = request(
+        &app,
+        "POST",
+        &format!("/api/v1/admin/nics/{}/free", nics[0]),
+        Some(&admin),
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    let (_, body) = request(&app, "GET", "/api/v1/servers", Some(&admin), None).await;
+    let nic = nic_by_id(&body, &nics[0]);
+    assert!(nic["claim"].is_null());
+    assert!(nic["peer_port_id"].is_null());
+    assert_eq!(nic["usage"], "");
+    let (_, ports) = request(&app, "GET", "/api/v1/tofino-ports", Some(&admin), None).await;
+    let port = &ports["ports"][0];
+    assert!(port["peer_nic_id"].is_null());
+    assert_eq!(port["comment"], "");
+    assert_eq!(port["cable_label"], "");
+
+    // NIC to NIC: the other NIC is unplugged and loses the cable
+    // documentation but keeps its owner.
+    let (status, _) = request(
+        &app,
+        "PUT",
+        &format!("/api/v1/admin/nics/{}/claim", nics[2]),
+        Some(&admin),
+        Some(json!({"assignee_name": "Pascal", "comment": "own"})),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = request(
+        &app,
+        "PUT",
+        &format!("/api/v1/admin/nics/{}/claim", nics[1]),
+        Some(&admin),
+        Some(json!({
+            "assignee_name": "Robin",
+            "peer": {"kind": "nic", "nic_id": nics[2]},
+            "cable_label": "C-3",
+            "comment": "Back-to-back"
+        })),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = request(
+        &app,
+        "POST",
+        &format!("/api/v1/admin/nics/{}/free", nics[1]),
+        Some(&admin),
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    let (_, body) = request(&app, "GET", "/api/v1/servers", Some(&admin), None).await;
+    let freed = nic_by_id(&body, &nics[1]);
+    assert!(freed["claim"].is_null());
+    assert!(freed["peer_nic_id"].is_null());
+    let other = nic_by_id(&body, &nics[2]);
+    assert!(other["peer_nic_id"].is_null());
+    assert_eq!(other["claim"]["user_display_name"], "Pascal");
+    // "Used by" is per NIC: only the freed one loses it.
+    assert_eq!(other["usage"], "118 (springel-dpdk-3)");
+    assert_eq!(other["claim"]["cable_label"], "");
+    assert_eq!(other["claim"]["comment"], "");
+
+    // Idempotent on a free NIC; unknown NICs are 404.
+    let (status, _) = request(
+        &app,
+        "POST",
+        &format!("/api/v1/admin/nics/{}/free", nics[1]),
+        Some(&admin),
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    let (status, _) = request(
+        &app,
+        "POST",
+        "/api/v1/admin/nics/missing/free",
+        Some(&admin),
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+}

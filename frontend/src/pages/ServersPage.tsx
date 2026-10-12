@@ -10,6 +10,7 @@ import {
   useReleaseNicClaimMutation,
   useServers,
   useTofinoPorts,
+  useFreeNicMutation,
   useUpdateNicMutation,
 } from '../api/queries'
 import type { NicView, ServerWithNics } from '../api/client'
@@ -19,7 +20,7 @@ import { cn } from '../lib/cn'
 import { Card, Skeleton } from '../components/Card'
 import { Button } from '../components/Button'
 import { Modal } from '../components/Modal'
-import { isManagementNic, NicTable } from '../components/NicTable'
+import { filterNics, hasAssignment, NicTable } from '../components/NicTable'
 import { ServerNicMap } from '../components/ServerNicMap'
 import { FieldLabel, Select, TextInput } from '../components/Select'
 import {
@@ -34,6 +35,17 @@ import {
   usageKey,
   usageName,
 } from '../lib/usageColors'
+
+function confirmFree(nic: NicView): boolean {
+  const peer =
+    nic.peer_port_label || nic.peer_nic_label || nic.peer_mgmt_port_label
+  const cable = peer
+    ? ` It is also unplugged from ${peer}, and the cable label and comment are removed on both ends.`
+    : ''
+  return window.confirm(
+    `Free ${nic.name}? This clears the owner, "Used by", and comment.${cable}`,
+  )
+}
 
 /**
  * Everything an admin can document about one NIC: what it is used for, how
@@ -55,6 +67,7 @@ function NicModal({
   const { data: mgmtPortsData } = useManagementPorts()
   const putClaim = usePutNicClaimMutation()
   const releaseClaim = useReleaseNicClaimMutation()
+  const freeNic = useFreeNicMutation()
   const updateNic = useUpdateNicMutation()
   const { toast } = useToast()
   const [usage, setUsage] = useState(nic.usage)
@@ -170,12 +183,17 @@ function NicModal({
       peer.kind !== 'none' ||
       cableLabel.trim() !== '' ||
       comment.trim() !== ''
+    // Releasing alone never unplugs: a NIC that loses its peer has to go
+    // through the claim endpoint first so both ends are disconnected.
+    const wasCabled = Boolean(
+      nic.peer_port_id || nic.peer_nic_id || nic.peer_mgmt_port_id,
+    )
     try {
       await updateNic.mutateAsync({
         id: nic.id,
         body: { usage, speed_gbps: speedGbps },
       })
-      if (documents) {
+      if (documents || wasCabled) {
         await putClaim.mutateAsync({
           nicId: nic.id,
           body: {
@@ -189,7 +207,8 @@ function NicModal({
             comment: comment.trim(),
           },
         })
-      } else if (nic.claim) {
+      }
+      if (!documents && (nic.claim || wasCabled)) {
         await releaseClaim.mutateAsync(nic.id)
       }
       toast(`Saved ${nic.name}.`, 'success')
@@ -198,6 +217,25 @@ function NicModal({
       setError(err instanceof Error ? err.message : 'Saving failed.')
     }
   }
+
+  const free = async () => {
+    if (!confirmFree(nic)) {
+      return
+    }
+    setError(null)
+    try {
+      await freeNic.mutateAsync(nic.id)
+      toast(`Freed ${nic.name}.`, 'success')
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Freeing failed.')
+    }
+  }
+  const busy =
+    updateNic.isPending ||
+    putClaim.isPending ||
+    releaseClaim.isPending ||
+    freeNic.isPending
 
   return (
     <Modal title={`Configure ${nic.name}`} onClose={onClose}>
@@ -321,16 +359,22 @@ function NicModal({
             {error}
           </p>
         ) : null}
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
+          {hasAssignment(nic) ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className="mr-auto"
+              onClick={free}
+              disabled={busy}
+            >
+              Free NIC
+            </Button>
+          ) : null}
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            disabled={
-              updateNic.isPending || putClaim.isPending || releaseClaim.isPending
-            }
-          >
+          <Button type="submit" disabled={busy}>
             Save
           </Button>
         </div>
@@ -342,19 +386,18 @@ function NicModal({
 export function ServersPage() {
   const { data: me } = useMe()
   const { data, isLoading } = useServers()
-  const releaseClaim = useReleaseNicClaimMutation()
+  const freeNic = useFreeNicMutation()
   const { toast } = useToast()
   const [configureNic, setConfigureNic] = useState<NicView | null>(null)
   const [showManagement, setShowManagement] = useState(false)
+  const [onlyFree, setOnlyFree] = useState(false)
   const [hoveredComment, setHoveredComment] = useState<string | null>(null)
   const [selectedComment, setSelectedComment] = useState<string | null>(null)
   const isAdmin = me?.user?.is_admin ?? false
   const servers = data?.servers ?? []
   const allNics = servers.flatMap((server) => server.nics)
   const visibleNics = (server: ServerWithNics) =>
-    showManagement
-      ? server.nics
-      : server.nics.filter((nic) => !isManagementNic(nic))
+    filterNics(server.nics, { showManagement, onlyFree })
   const commentColors = createUsageColorMap(
     allNics.map((nic) => nic.claim?.comment ?? ''),
     FACEPLATE_COMMENT_COLORS,
@@ -372,35 +415,52 @@ export function ServersPage() {
   )
   const activeCommentKey = hoveredComment ?? selectedComment
 
-  const release = async (nic: NicView) => {
-    if (!window.confirm(`Release the claim on ${nic.name}?`)) {
+  const free = async (nic: NicView) => {
+    if (!confirmFree(nic)) {
       return
     }
     try {
-      await releaseClaim.mutateAsync(nic.id)
-      toast(`Released ${nic.name}.`, 'success')
+      await freeNic.mutateAsync(nic.id)
+      toast(`Freed ${nic.name}.`, 'success')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Release failed.', 'error')
+      toast(err instanceof Error ? err.message : 'Freeing failed.', 'error')
     }
   }
+  const filterToggleClass =
+    'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-3xl border-2 border-berry-100 bg-white/80 px-4 text-sm font-black text-berry-700 shadow-soft dark:border-white/10 dark:bg-berry-900 dark:text-rose-100'
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-xl font-black">Servers</h2>
-        <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-3xl border-2 border-berry-100 bg-white/80 px-4 text-sm font-black text-berry-700 shadow-soft dark:border-white/10 dark:bg-berry-900 dark:text-rose-100">
-          <input
-            type="checkbox"
-            checked={showManagement}
-            onChange={(event) => {
-              setShowManagement(event.target.checked)
-              setHoveredComment(null)
-              setSelectedComment(null)
-            }}
-            className="size-4 accent-primary"
-          />
-          Show management NICs
-        </label>
+        <div className="flex flex-wrap gap-2">
+          <label className={filterToggleClass}>
+            <input
+              type="checkbox"
+              checked={onlyFree}
+              onChange={(event) => {
+                setOnlyFree(event.target.checked)
+                setHoveredComment(null)
+                setSelectedComment(null)
+              }}
+              className="size-4 accent-primary"
+            />
+            Only free NICs
+          </label>
+          <label className={filterToggleClass}>
+            <input
+              type="checkbox"
+              checked={showManagement}
+              onChange={(event) => {
+                setShowManagement(event.target.checked)
+                setHoveredComment(null)
+                setSelectedComment(null)
+              }}
+              className="size-4 accent-primary"
+            />
+            Show management NICs
+          </label>
+        </div>
       </div>
       {isLoading ? (
         <Skeleton className="h-48" />
@@ -505,9 +565,11 @@ export function ServersPage() {
                       />
                     ) : (
                       <p className="rounded-3xl border border-berry-100 bg-berry-50/60 p-3 text-sm font-bold text-berry-700/70 dark:border-white/10 dark:bg-berry-950/35 dark:text-rose-100/70">
-                        {server.nics.length > 0
-                          ? 'Management NICs are hidden by the current filter.'
-                          : 'No NICs recorded for this server yet.'}
+                        {server.nics.length === 0
+                          ? 'No NICs recorded for this server yet.'
+                          : onlyFree
+                            ? 'No free NICs match the current filter.'
+                            : 'Management NICs are hidden by the current filter.'}
                       </p>
                     )}
                   </section>
@@ -565,8 +627,9 @@ export function ServersPage() {
                   server={server}
                   isAdmin={isAdmin}
                   showManagement={showManagement}
+                  onlyFree={onlyFree}
                   onConfigure={setConfigureNic}
-                  onRelease={release}
+                  onFree={free}
                 />
               </Card>
             ))}

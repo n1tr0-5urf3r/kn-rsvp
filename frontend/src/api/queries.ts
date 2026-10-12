@@ -209,6 +209,20 @@ export function useReleaseNicClaimMutation() {
   })
 }
 
+/** Frees a NIC: clears claim and "used by", unplugs its cable on both ends. */
+export function useFreeNicMutation() {
+  const invalidate = useInvalidate()
+  return useMutation({
+    mutationFn: (nicId: string) => api.freeNic(nicId),
+    onSuccess: () =>
+      invalidate(
+        queryKeys.servers,
+        ['tofino-ports'],
+        ['management-switch-ports'],
+      ),
+  })
+}
+
 /* ---------------------------- Admin: tofinos ---------------------------- */
 
 export function useCreateTofinoMutation() {

@@ -43,6 +43,7 @@ pub fn router() -> Router<AppState> {
             "/admin/nics/{id}/claim",
             put(put_nic_claim).delete(delete_nic_claim),
         )
+        .route("/admin/nics/{id}/free", post(free_nic))
         .route("/admin/tofinos", post(create_tofino))
         .route(
             "/admin/tofinos/{id}",
@@ -1085,6 +1086,82 @@ pub(crate) async fn delete_nic_claim(
     if result.rows_affected() == 0 {
         return Err(ApiError::NotFound);
     }
+    Ok(StatusCode::NO_CONTENT)
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/admin/nics/{id}/free",
+    tag = "admin",
+    params(("id" = String, Path)),
+    responses((status = 204, description = "NIC freed and unplugged on both ends"))
+)]
+pub(crate) async fn free_nic(
+    State(state): State<AppState>,
+    admin: AdminUser,
+    Path(nic_id): Path<String>,
+) -> ApiResult<StatusCode> {
+    // Unlike a release, this hands back the NIC entirely: owner, "used by"
+    // label, comment, and the cable itself go, on both ends of the link.
+    let mut tx = state.db.begin_with("BEGIN IMMEDIATE").await?;
+    let nic: Option<(String,)> = sqlx::query_as("SELECT id FROM nics WHERE id = ?")
+        .bind(&nic_id)
+        .fetch_optional(&mut *tx)
+        .await?;
+    nic.ok_or(ApiError::NotFound)?;
+    let now = now_ts();
+    let peer_nic: Option<(Option<String>,)> =
+        sqlx::query_as("SELECT peer_nic_id FROM nics WHERE id = ?")
+            .bind(&nic_id)
+            .fetch_optional(&mut *tx)
+            .await?;
+    let peer_nic = peer_nic.and_then(|(peer,)| peer);
+
+    // Wipe the cable documentation on whatever is plugged in while the link
+    // still exists, then unplug it.
+    sqlx::query(
+        "UPDATE tofino_ports SET cable_label = '', comment = '', updated_by = ?, updated_at = ?
+         WHERE peer_nic_id = ?",
+    )
+    .bind(&admin.0.id)
+    .bind(now)
+    .bind(&nic_id)
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query(
+        "UPDATE management_switch_ports SET cable_label = '', comment = '', updated_by = ?,
+                                            updated_at = ?
+         WHERE peer_nic_id = ?",
+    )
+    .bind(&admin.0.id)
+    .bind(now)
+    .bind(&nic_id)
+    .execute(&mut *tx)
+    .await?;
+    if let Some(peer_nic) = &peer_nic {
+        ports::write_nic_cable_documentation(&mut tx, peer_nic, "", "", &admin.0.id, now).await?;
+        // The other NIC keeps its owner; a row left with nothing to say goes.
+        sqlx::query(
+            "DELETE FROM nic_claims
+             WHERE nic_id = ? AND user_id IS NULL AND assignee_name = ''
+               AND connected_to = '' AND cable_label = '' AND comment = ''",
+        )
+        .bind(peer_nic)
+        .execute(&mut *tx)
+        .await?;
+    }
+    ports::connect_nic_to_port(&mut tx, &nic_id, None, &admin.0.id, now).await?;
+    ports::connect_nic_to_mgmt_port(&mut tx, &nic_id, None, now).await?;
+    sqlx::query("DELETE FROM nic_claims WHERE nic_id = ?")
+        .bind(&nic_id)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query("UPDATE nics SET usage = '', updated_at = ? WHERE id = ?")
+        .bind(now)
+        .bind(&nic_id)
+        .execute(&mut *tx)
+        .await?;
+    tx.commit().await?;
     Ok(StatusCode::NO_CONTENT)
 }
 

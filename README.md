@@ -172,4 +172,4 @@ If this project saves you time, you can help keep it maintained and improving.
 
 </div>
 
-Version: **1.4.0**
+Version: **1.5.0**

@@ -2,7 +2,12 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import type { ServerWithNics } from '../api/types'
-import { isManagementNic, NicTable } from './NicTable'
+import {
+  filterNics,
+  hasAssignment,
+  isManagementNic,
+  NicTable,
+} from './NicTable'
 
 const server: ServerWithNics = {
   id: 'chucky',
@@ -43,6 +48,66 @@ const server: ServerWithNics = {
     },
   ],
 }
+
+describe('filterNics', () => {
+  const claim = (owner: string, comment = '') => ({
+    user_id: null,
+    user_display_name: owner,
+    connected_to: '',
+    cable_label: '',
+    comment,
+    updated_at: 0,
+  })
+  const nics = [
+    { id: 'owned', usage: 'DPDK', claim: claim('Robin') },
+    { id: 'cable-only', usage: '', claim: claim('', 'Uplink') },
+    { id: 'unclaimed', usage: '', claim: null },
+    { id: 'mgmt', usage: 'Management', claim: null },
+  ]
+  const ids = (options: { showManagement: boolean; onlyFree: boolean }) =>
+    filterNics(nics, options).map((nic) => nic.id)
+
+  it('keeps only NICs nobody owns when filtering for free ones', () => {
+    expect(ids({ showManagement: false, onlyFree: true })).toEqual([
+      'cable-only',
+      'unclaimed',
+    ])
+    expect(ids({ showManagement: true, onlyFree: true })).toEqual([
+      'cable-only',
+      'unclaimed',
+      'mgmt',
+    ])
+  })
+
+  it('hides management NICs unless asked for them', () => {
+    expect(ids({ showManagement: false, onlyFree: false })).toEqual([
+      'owned',
+      'cable-only',
+      'unclaimed',
+    ])
+  })
+})
+
+describe('hasAssignment', () => {
+  const bare = {
+    claim: null,
+    usage: '',
+    peer_port_id: null,
+    peer_nic_id: null,
+    peer_mgmt_port_id: null,
+  }
+
+  it('counts a "used by" label, a link, or a claim row as something to free', () => {
+    expect(hasAssignment(bare)).toBe(false)
+    expect(hasAssignment({ ...bare, usage: '118 (springel-dpdk-3)' })).toBe(
+      true,
+    )
+    expect(hasAssignment({ ...bare, peer_nic_id: 'nic-2' })).toBe(true)
+    expect(
+      hasAssignment({ ...bare, peer_mgmt_port_id: 'mgmt-port-1' }),
+    ).toBe(true)
+  })
+})
 
 describe('isManagementNic', () => {
   it('matches the Management usage label without depending on case or spacing', () => {
@@ -135,9 +200,36 @@ describe('isManagementNic', () => {
     const row = screen.getByRole('row', { name: /81\.1/ })
     expect(within(row).getByText('free')).toBeInTheDocument()
     expect(within(row).getByText('A12')).toBeInTheDocument()
-    // Nothing to release when nobody holds it.
+    // The documented cable can still be removed.
     expect(
-      within(row).queryByRole('button', { name: /Release/ }),
+      within(row).getByRole('button', { name: 'Free 81.1' }),
+    ).toBeInTheDocument()
+  })
+
+  it('offers Free NIC for a cabled NIC but not a bare one', () => {
+    const cabled: ServerWithNics = {
+      ...server,
+      nics: [
+        { ...server.nics[0], peer_port_id: 'port-1' },
+        { ...server.nics[0], id: 'nic-81-2', name: '81.2', usage: '' },
+      ],
+    }
+    render(
+      <MemoryRouter>
+        <NicTable server={cabled} isAdmin onConfigure={vi.fn()} />
+      </MemoryRouter>,
+    )
+
+    expect(
+      within(screen.getByRole('row', { name: /81\.1/ })).getByRole('button', {
+        name: 'Free 81.1',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('row', { name: /81\.2/ })).queryByRole(
+        'button',
+        { name: /Free/ },
+      ),
     ).not.toBeInTheDocument()
   })
 

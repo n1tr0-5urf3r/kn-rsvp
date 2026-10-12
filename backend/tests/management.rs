@@ -750,3 +750,52 @@ async fn nic_editor_links_to_management_port_and_detaches_other_links() {
         "moving the NIC to free text must release the old management port"
     );
 }
+
+/// Freeing a NIC unplugs it from a management port too, and the port
+/// loses the cable documentation with it.
+#[tokio::test]
+async fn freeing_a_nic_unplugs_its_management_port() {
+    let (_state, app) = test_app().await;
+    let admin = login(&app, "admin", true).await;
+    let sw = create_switch(&app, &admin, "Mgmt1").await;
+    let port = create_port(&app, &admin, &sw, "A").await;
+    let (_server, nic) =
+        create_server_with_nic(&app, &admin, "free-mgmt", "eno1", "0000:01:00.0").await;
+
+    let (status, _) = request(
+        &app,
+        "PATCH",
+        &format!("/api/v1/admin/management-switch-ports/{port}"),
+        Some(&admin),
+        Some(json!({
+            "cable_label": "M-1",
+            "comment": "IPMI",
+            "peer": { "kind": "nic", "nic_id": nic }
+        })),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+
+    let (status, _) = request(
+        &app,
+        "POST",
+        &format!("/api/v1/admin/nics/{nic}/free"),
+        Some(&admin),
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+
+    let (_s, mgmt_ports) = request(
+        &app,
+        "GET",
+        &format!("/api/v1/management-switch-ports?switch_id={sw}"),
+        Some(&admin),
+        None,
+    )
+    .await;
+    let row = port_by_id(&mgmt_ports, &port);
+    assert_eq!(row["peer_nic_id"], Value::Null);
+    assert_eq!(row["cable_label"], "");
+    assert_eq!(row["comment"], "");
+}

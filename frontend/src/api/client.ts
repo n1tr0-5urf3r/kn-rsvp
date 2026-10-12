@@ -225,6 +225,10 @@ export const api = {
     request<void>(`/api/v1/admin/nics/${encodeURIComponent(nicId)}/claim`, {
       method: 'DELETE',
     }),
+  freeNic: (nicId: string) =>
+    request<void>(`/api/v1/admin/nics/${encodeURIComponent(nicId)}/free`, {
+      method: 'POST',
+    }),
 
   createTofino: (body: CreateTofinoRequest) =>
     request<Tofino>('/api/v1/admin/tofinos', { method: 'POST', json: body }),
