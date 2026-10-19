@@ -70,4 +70,24 @@ describe('booking end fields', () => {
       screen.getByRole('combobox', { name: 'Duration' }),
     ).toHaveDisplayValue('6 hours 40 minutes')
   })
+
+  it('spells out the end date when only the hour changes overnight', async () => {
+    const user = userEvent.setup()
+    render(<EndFieldsHarness />)
+
+    await user.click(screen.getByRole('button', { name: '20.08.2026' }))
+    await user.click(screen.getByRole('button', { name: /21\.08\.2026/ }))
+    expect(screen.getByTestId('booking-end-summary')).toHaveTextContent(
+      'Ends Fri 21 Aug, 18:00 (25 hours)',
+    )
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'End hour' }),
+      '04',
+    )
+
+    expect(screen.getByTestId('booking-end-summary')).toHaveTextContent(
+      'Ends Fri 21 Aug, 04:00 (11 hours)',
+    )
+  })
 })

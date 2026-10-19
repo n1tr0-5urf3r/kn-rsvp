@@ -288,6 +288,18 @@ export function BookingEndFields({
           </div>
         </div>
       </div>
+      {/* The hour field keeps the end date, so spell out the resulting end:
+          changing only the hour of an overnight booking stays on the next day. */}
+      {endTs !== null && durationMinutes !== null && durationMinutes > 0 ? (
+        <p
+          aria-live="polite"
+          data-testid="booking-end-summary"
+          className="rounded-2xl bg-primary/5 px-4 py-2.5 text-sm font-bold text-berry-950 dark:bg-blush/10 dark:text-berry-50"
+        >
+          Ends {format(unixToDate(endTs), 'EEE dd MMM, HH:mm')} (
+          {formatDurationLabel(durationMinutes)})
+        </p>
+      ) : null}
       <p className="text-xs font-semibold text-berry-700/70 dark:text-rose-100/70">
         The end must be after the start and within {MAX_BOOKING_DURATION_HOURS}{' '}
         hours.
