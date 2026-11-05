@@ -69,7 +69,7 @@ const servers: ServerWithNics[] = ['Pennywise', 'Chucky'].map(
   },
 )
 
-function mockApi() {
+function mockApi(isAdmin = false) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const url = String(input)
     const body = url.includes('/servers')
@@ -78,7 +78,7 @@ function mockApi() {
           user: {
             id: 'user-1',
             display_name: 'Test User',
-            is_admin: false,
+            is_admin: isAdmin,
           },
         }
     return Promise.resolve({
@@ -169,4 +169,60 @@ describe('ServersPage', () => {
       screen.getAllByText('No free NICs match the current filter.'),
     ).toHaveLength(2)
   })
+
+  it('hides the inventory controls from non-staff users', async () => {
+    mockApi(false)
+    renderPage()
+
+    await screen.findByLabelText('Pennywise PCI adapter map')
+    expect(
+      screen.queryByRole('button', { name: 'Add server' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Add NIC to Pennywise' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Edit server Pennywise' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('lets staff add servers and NICs from the Servers page', async () => {
+    const user = userEvent.setup()
+    mockApi(true)
+    renderPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Add server' }))
+    expect(
+      screen.getByRole('heading', { name: 'New server' }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    await user.click(
+      screen.getByRole('button', { name: 'Add NIC to Chucky' }),
+    )
+    expect(screen.getByRole('heading', { name: 'New NIC' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    await user.click(
+      screen.getByRole('button', { name: 'Edit server Pennywise' }),
+    )
+    expect(
+      screen.getByRole('heading', { name: 'Edit Pennywise' }),
+    ).toBeInTheDocument()
+  })
 })
+
+function renderPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  render(
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <MemoryRouter>
+          <ServersPage />
+        </MemoryRouter>
+      </ToastProvider>
+    </QueryClientProvider>,
+  )
+}

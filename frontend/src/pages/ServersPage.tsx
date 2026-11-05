@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, Cpu } from 'lucide-react'
+import { CalendarDays, Cpu, Pencil, Plus } from 'lucide-react'
 import {
   useAdminUsers,
   useManagementPorts,
@@ -19,6 +19,10 @@ import { describeHardware } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Card, Skeleton } from '../components/Card'
 import { Button } from '../components/Button'
+import {
+  NicFormModal,
+  ServerFormModal,
+} from '../components/DeviceFormModals'
 import { Modal } from '../components/Modal'
 import { filterNics, hasAssignment, NicTable } from '../components/NicTable'
 import { ServerNicMap } from '../components/ServerNicMap'
@@ -389,6 +393,11 @@ export function ServersPage() {
   const freeNic = useFreeNicMutation()
   const { toast } = useToast()
   const [configureNic, setConfigureNic] = useState<NicView | null>(null)
+  // Staff-only inventory forms: add/edit a server, add a NIC to a server.
+  const [serverForm, setServerForm] = useState<{
+    server: ServerWithNics | null
+  } | null>(null)
+  const [addNicTo, setAddNicTo] = useState<ServerWithNics | null>(null)
   const [showManagement, setShowManagement] = useState(false)
   const [onlyFree, setOnlyFree] = useState(false)
   const [hoveredComment, setHoveredComment] = useState<string | null>(null)
@@ -460,6 +469,12 @@ export function ServersPage() {
             />
             Show management NICs
           </label>
+          {isAdmin ? (
+            <Button onClick={() => setServerForm({ server: null })}>
+              <Plus className="size-4" aria-hidden="true" />
+              Add server
+            </Button>
+          ) : null}
         </div>
       </div>
       {isLoading ? (
@@ -468,6 +483,9 @@ export function ServersPage() {
         <Card>
           <p className="font-bold text-berry-700/70 dark:text-rose-100/70">
             No servers configured yet.
+            {isAdmin
+              ? ' Add one, then document its NICs — or run the NIC inventory script to import them.'
+              : ''}
           </p>
         </Card>
       ) : (
@@ -613,15 +631,39 @@ export function ServersPage() {
                       </p>
                     ) : null}
                   </div>
-                  {server.reservable ? (
-                    <Link
-                      to={`/calendar?resource=server:${server.id}`}
-                      className="inline-flex min-h-10 items-center gap-2 rounded-3xl bg-primary px-4 font-display text-sm font-black text-white shadow-button transition hover:-translate-y-0.5 hover:bg-secondary dark:bg-blush dark:text-berry-950"
-                    >
-                      <CalendarDays className="size-4" aria-hidden="true" />
-                      Reserve server
-                    </Link>
-                  ) : null}
+                  <div className="flex flex-wrap gap-1">
+                    {isAdmin ? (
+                      <>
+                        <Button
+                          variant="ghost"
+                          className="min-h-10 px-3 text-xs"
+                          onClick={() => setServerForm({ server })}
+                          aria-label={`Edit server ${server.name}`}
+                        >
+                          <Pencil className="size-4" aria-hidden="true" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="min-h-10 px-3 text-xs"
+                          onClick={() => setAddNicTo(server)}
+                          aria-label={`Add NIC to ${server.name}`}
+                        >
+                          <Plus className="size-4" aria-hidden="true" />
+                          Add NIC
+                        </Button>
+                      </>
+                    ) : null}
+                    {server.reservable ? (
+                      <Link
+                        to={`/calendar?resource=server:${server.id}`}
+                        className="inline-flex min-h-10 items-center gap-2 rounded-3xl bg-primary px-4 font-display text-sm font-black text-white shadow-button transition hover:-translate-y-0.5 hover:bg-secondary dark:bg-blush dark:text-berry-950"
+                      >
+                        <CalendarDays className="size-4" aria-hidden="true" />
+                        Reserve server
+                      </Link>
+                    ) : null}
+                  </div>
                 </div>
                 <NicTable
                   server={server}
@@ -641,6 +683,19 @@ export function ServersPage() {
           nic={configureNic}
           servers={servers}
           onClose={() => setConfigureNic(null)}
+        />
+      ) : null}
+      {isAdmin && serverForm ? (
+        <ServerFormModal
+          server={serverForm.server}
+          onClose={() => setServerForm(null)}
+        />
+      ) : null}
+      {isAdmin && addNicTo ? (
+        <NicFormModal
+          serverId={addNicTo.id}
+          nic={null}
+          onClose={() => setAddNicTo(null)}
         />
       ) : null}
     </div>
