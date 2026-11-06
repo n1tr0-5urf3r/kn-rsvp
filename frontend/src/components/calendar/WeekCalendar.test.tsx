@@ -7,6 +7,21 @@ import { WeekCalendar } from './WeekCalendar'
 
 const monday = new Date(2026, 6, 20) // Mon 20 Jul 2026
 
+/**
+ * Sums a serialized `calc()` expression's terms per unit, so assertions don't
+ * depend on the term order jsdom's CSS serializer happens to canonicalize to.
+ */
+function calcTerms(value: string): Record<string, number> {
+  const terms: Record<string, number> = {}
+  const body = value.replace(/^calc\((.*)\)$/, '$1')
+  for (const [, op, num, unit] of body.matchAll(
+    /([+-])?\s*(-?[\d.]+)(rem|px|%)/g,
+  )) {
+    terms[unit] = (terms[unit] ?? 0) + (op === '-' ? -1 : 1) * Number(num)
+  }
+  return terms
+}
+
 function booking(
   id: string,
   userId: string,
@@ -58,14 +73,14 @@ describe('WeekCalendar', () => {
     expect(b1.dataset.day).toBe('1')
     expect(b1.dataset.startHour).toBe('10')
     expect(b1.dataset.endHour).toBe('12')
-    expect(b1.style.top).toBe('calc(2px + 27.5rem)')
-    expect(b1.style.height).toBe('calc(5.5rem - 4px)')
+    expect(calcTerms(b1.style.top)).toEqual({ px: 2, rem: 27.5 })
+    expect(calcTerms(b1.style.height)).toEqual({ rem: 5.5, px: -4 })
     expect(screen.getByTestId('day-column-1')).toContainElement(b1)
 
     const b2 = blocks.find((el) => el.dataset.bookingId === 'b2')!
     expect(b2.dataset.day).toBe('3')
-    expect(b2.style.top).toBe('calc(2px + 24.75rem)')
-    expect(b2.style.height).toBe('calc(2.75rem - 4px)')
+    expect(calcTerms(b2.style.top)).toEqual({ px: 2, rem: 24.75 })
+    expect(calcTerms(b2.style.height)).toEqual({ rem: 2.75, px: -4 })
     expect(screen.getByTestId('day-column-3')).toContainElement(b2)
   })
 
@@ -85,11 +100,10 @@ describe('WeekCalendar', () => {
 
     const block = screen.getByTestId('booking-block')
     expect(block.style.position).toBe('absolute')
-    expect(block.style.top).toBe('calc(2px + 49.5rem)')
-    const heightRem = Number(
-      block.style.height.match(/calc\(([^r]+)rem/)?.[1],
-    )
-    expect(heightRem).toBeCloseTo((40 / 60) * 2.75)
+    expect(calcTerms(block.style.top)).toEqual({ px: 2, rem: 49.5 })
+    const height = calcTerms(block.style.height)
+    expect(height.rem).toBeCloseTo((40 / 60) * 2.75)
+    expect(height.px).toBe(-4)
   })
 
   it('renders concurrent bookings of different tofinos side by side', () => {
@@ -270,11 +284,11 @@ describe('WeekCalendar', () => {
       Number(a.dataset.day) - Number(b.dataset.day),
     )
     expect(first.dataset.day).toBe('1')
-    expect(first.style.top).toBe('calc(2px + 63.25rem)')
-    expect(first.style.height).toBe('calc(2.75rem - 4px)')
+    expect(calcTerms(first.style.top)).toEqual({ px: 2, rem: 63.25 })
+    expect(calcTerms(first.style.height)).toEqual({ rem: 2.75, px: -4 })
     expect(second.dataset.day).toBe('2')
-    expect(second.style.top).toBe('calc(2px + 0rem)')
-    expect(second.style.height).toBe('calc(2.75rem - 4px)')
+    expect(calcTerms(second.style.top)).toEqual({ px: 2, rem: 0 })
+    expect(calcTerms(second.style.height)).toEqual({ rem: 2.75, px: -4 })
   })
 
   it('lets the owner click their booking, but not others', async () => {

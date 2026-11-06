@@ -1,6 +1,6 @@
 [package]
 name = "rsvp"
-version = "1.5.0"
+version = "1.6.0"
 edition = "2024"
 license = "AGPL-3.0-only"
 repository = "https://github.com/n1tr0-5urf3r/kn-rsvp"
@@ -32,8 +32,8 @@ tower-http = { version = "0.7", features = ["cors", "trace", "fs"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 url = "2"
-utoipa = { version = "5", features = ["axum_extras"] }
-utoipa-swagger-ui = { version = "9", features = ["axum", "vendored"] }
+utoipa = { version = "6", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "10", features = ["axum", "vendored"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 
 [dev-dependencies]

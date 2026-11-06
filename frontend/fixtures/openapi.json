@@ -7,7 +7,7 @@
       "name": "AGPL-3.0-only",
       "identifier": "AGPL-3.0-only"
     },
-    "version": "1.5.0"
+    "version": "1.6.0"
   },
   "paths": {
     "/api/v1/admin/caldav/calendars": {
@@ -18,7 +18,6 @@
         "operationId": "list_calendars",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -46,7 +45,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -107,7 +105,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -137,7 +134,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -157,7 +153,6 @@
         "operationId": "resync",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -177,7 +172,6 @@
         "operationId": "caldav_status",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -217,7 +211,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -257,7 +250,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -267,7 +259,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -328,7 +319,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -338,7 +328,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -378,7 +367,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -428,7 +416,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -499,7 +486,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -539,7 +525,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -613,7 +598,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -623,7 +607,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -684,7 +667,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -724,7 +706,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -734,7 +715,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -754,7 +734,6 @@
         "operationId": "get_settings",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -782,7 +761,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -853,7 +831,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -893,7 +870,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -903,7 +879,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -974,7 +949,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1014,7 +988,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1064,7 +1037,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1094,7 +1066,6 @@
         "operationId": "list_users",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1124,7 +1095,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1134,7 +1104,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1195,7 +1164,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1205,7 +1173,6 @@
             }
           },
           "409": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1320,7 +1287,6 @@
         "operationId": "me",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1390,7 +1356,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1418,7 +1383,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1499,7 +1463,6 @@
         },
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1529,7 +1492,6 @@
         "operationId": "public_config",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1549,7 +1511,6 @@
         "operationId": "health",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1583,7 +1544,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1603,7 +1563,6 @@
         "operationId": "list_switches",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1623,7 +1582,6 @@
         "operationId": "list_servers",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1657,7 +1615,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1677,7 +1634,6 @@
         "operationId": "list_tofinos",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1697,7 +1653,6 @@
         "operationId": "list_vlans",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -2677,10 +2632,10 @@
           "user": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/CurrentUser"
               },
               {
-                "$ref": "#/components/schemas/CurrentUser"
+                "type": "null"
               }
             ]
           }
@@ -2717,11 +2672,11 @@
           "peer": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/NicPeerInput",
                 "description": "Structured cabling update. Omit to preserve the current link."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -2879,10 +2834,10 @@
           "claim": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/NicClaimView"
               },
               {
-                "$ref": "#/components/schemas/NicClaimView"
+                "type": "null"
               }
             ]
           },
@@ -3780,11 +3735,11 @@
           "peer": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PeerInput",
                 "description": "Replaces the whole \"plugged into\" side when present."
+              },
+              {
+                "type": "null"
               }
             ]
           },

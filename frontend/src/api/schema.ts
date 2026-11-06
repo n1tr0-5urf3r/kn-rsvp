@@ -914,7 +914,7 @@ export interface components {
             switches: components["schemas"]["ManagementSwitchView"][];
         };
         MeResponse: {
-            user?: null | components["schemas"]["CurrentUser"];
+            user?: components["schemas"]["CurrentUser"] | null;
         };
         NicClaimRequest: {
             /** @description Free-form assignee for people or projects without an account. */
@@ -922,7 +922,7 @@ export interface components {
             cable_label?: string | null;
             comment?: string | null;
             connected_to?: string | null;
-            peer?: null | components["schemas"]["NicPeerInput"];
+            peer?: components["schemas"]["NicPeerInput"] | null;
             /** @description Authentik-backed user when one is available. */
             user_id?: string | null;
         };
@@ -961,7 +961,7 @@ export interface components {
             text: string;
         };
         NicView: {
-            claim?: null | components["schemas"]["NicClaimView"];
+            claim?: components["schemas"]["NicClaimView"] | null;
             id: string;
             /** @description Kernel interface name, e.g. "ens65f0np0". */
             ifname: string;
@@ -1239,7 +1239,7 @@ export interface components {
             ifindex?: number | null;
             ifname?: string | null;
             name?: string | null;
-            peer?: null | components["schemas"]["PeerInput"];
+            peer?: components["schemas"]["PeerInput"] | null;
             /** Format: int64 */
             sort_order?: number | null;
             /** Format: double */

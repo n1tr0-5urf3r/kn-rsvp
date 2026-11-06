@@ -4,7 +4,7 @@ Guidance for working in this repository.
 
 ## What this is
 
-**rsvp** is a self-hosted hardware reservation and testbed-inventory application. It combines hourly bookings, server/NIC claims, programmable-switch port maps, physical and management topology, VLAN inventory, Authentik OIDC, and one-way Nextcloud CalDAV sync. Deployment branding and infrastructure-specific values belong in `.env` or the persistent data directory, never in schema migrations. Current version **1.5.0** (kept in sync between `backend/Cargo.toml`, `backend/Cargo.lock`, `frontend/package.json`, and `frontend/package-lock.json`). Commits follow Conventional Commits.
+**rsvp** is a self-hosted hardware reservation and testbed-inventory application. It combines hourly bookings, server/NIC claims, programmable-switch port maps, physical and management topology, VLAN inventory, Authentik OIDC, and one-way Nextcloud CalDAV sync. Deployment branding and infrastructure-specific values belong in `.env` or the persistent data directory, never in schema migrations. Current version **1.6.0** (kept in sync between `backend/Cargo.toml`, `backend/Cargo.lock`, `frontend/package.json`, and `frontend/package-lock.json`). Commits follow Conventional Commits.
 
 ## Architecture
 
