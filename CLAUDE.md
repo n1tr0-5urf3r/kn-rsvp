@@ -31,7 +31,7 @@ cd backend && cargo fmt --check && cargo clippy -- -D warnings && cargo test
 cd frontend && npm run lint && npm run test && npm run build
 ```
 
-OpenAPI pipeline (rerun after changing API types/handlers):
+OpenAPI pipeline (rerun after changing API types/handlers; `scripts/regen-openapi.sh` does both steps, CI fails if either output is stale, Renovate runs it on dependency updates):
 ```sh
 cd backend && cargo run --bin openapi-export > ../frontend/fixtures/openapi.json
 cd frontend && npm run generate:api    # -> src/api/schema.ts
