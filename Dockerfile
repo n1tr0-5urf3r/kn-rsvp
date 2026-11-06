@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Stage 1: build the React frontend
-FROM node:22-trixie-slim AS frontend-build
+FROM node:26-trixie-slim AS frontend-build
 
 WORKDIR /app/frontend
 
@@ -17,7 +17,7 @@ RUN npm run build
 
 
 # Stage 2: build the Rust backend (edition 2024 requires Rust >= 1.85)
-FROM rust:1.96.1-trixie AS backend-build
+FROM rust:1.99.1-trixie AS backend-build
 
 WORKDIR /app/backend
 
