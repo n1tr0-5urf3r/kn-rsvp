@@ -128,7 +128,9 @@ pub async fn build_app(state: AppState) -> anyhow::Result<Router> {
         .merge(management::router())
         .merge(bookings::router())
         .merge(settings::router())
-        .merge(caldav::router());
+        .merge(caldav::router())
+        // Unknown API paths must stay JSON 404s instead of inheriting the SPA fallback below.
+        .fallback(|| async { error::ApiError::NotFound });
 
     let mut app = Router::new()
         .nest("/api/v1", api)
@@ -160,8 +162,9 @@ pub async fn build_app(state: AppState) -> anyhow::Result<Router> {
         let dist = PathBuf::from(frontend_dist);
         if dist.exists() {
             let index = dist.join("index.html");
-            app =
-                app.fallback_service(ServeDir::new(&dist).not_found_service(ServeFile::new(index)));
+            // Client-side routes (/servers, /calendar, ...) get index.html with 200.
+            // `not_found_service` would serve the same file but force a 404 status.
+            app = app.fallback_service(ServeDir::new(&dist).fallback(ServeFile::new(index)));
         } else {
             tracing::warn!(
                 "FRONTEND_DIST '{}' does not exist; serving API only",
