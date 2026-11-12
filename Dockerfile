@@ -17,7 +17,7 @@ RUN npm run build
 
 
 # Stage 2: build the Rust backend (edition 2024 requires Rust >= 1.85)
-FROM rust:1.99.1-trixie AS backend-build
+FROM rust:1.100.0-trixie AS backend-build
 
 WORKDIR /app/backend
 
