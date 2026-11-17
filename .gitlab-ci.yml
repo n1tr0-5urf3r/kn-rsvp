@@ -15,16 +15,29 @@ stages:
 
 variables:
   CARGO_TERM_COLOR: always
+  # Keep cargo's download cache inside the project dir so GitLab can cache it
+  # (paths outside CI_PROJECT_DIR are silently ignored by `cache:`).
+  CARGO_HOME: ${CI_PROJECT_DIR}/.cargo
+  # Incremental artifacts are useless in CI and were most of target/debug.
+  CARGO_INCREMENTAL: "0"
+  # Max size of backend/target before it is dropped instead of cached.
+  CARGO_TARGET_MAX_MB: "6000"
+  # One shared cache per job, written only by the default branch; MR/Renovate
+  # branches just read it. Per-branch keys left a multi-GB cache per branch.
+  CACHE_POLICY: pull
 
 backend_verify:
   stage: verify
   image: rust:1.100.0-trixie
   cache:
-    key: cargo-${CI_COMMIT_REF_SLUG}
+    key: cargo-${CI_DEFAULT_BRANCH}
+    unprotect: true
+    policy: $CACHE_POLICY
     paths:
+      - .cargo/registry/index
+      - .cargo/registry/cache
+      - .cargo/git/db
       - backend/target
-      - /usr/local/cargo/registry
-      - /usr/local/cargo/git
   before_script:
     # The rust image ships a minimal toolchain — fmt/clippy are not included
     - rustup component add rustfmt clippy
@@ -37,21 +50,34 @@ backend_verify:
     # The committed OpenAPI spec must match the code (fix: scripts/regen-openapi.sh)
     - cargo run --release --locked --quiet --bin openapi-export > /tmp/openapi.json
     - diff -u ../frontend/fixtures/openapi.json /tmp/openapi.json
+  after_script:
+    # Dependency bumps keep adding artifacts to target/; drop it once it gets
+    # too big so the next default-branch run caches a fresh one.
+    - |
+      if [ -d backend/target ] && [ "$(du -sm backend/target | cut -f1)" -gt "${CARGO_TARGET_MAX_MB}" ]; then
+        echo "backend/target exceeds ${CARGO_TARGET_MAX_MB} MB, not caching it"; rm -rf backend/target
+      fi
   rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CACHE_POLICY: pull-push
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH
-  tags: [shared]
+  tags: [remote]
 
 frontend_verify:
   stage: verify
   image: node:26-trixie
   cache:
-    key: npm-${CI_COMMIT_REF_SLUG}
+    key: npm-${CI_DEFAULT_BRANCH}
+    unprotect: true
+    policy: $CACHE_POLICY
     paths:
-      - frontend/node_modules
+      - .npm
   before_script:
     - cd frontend
-    - npm ci
+    # node_modules is wiped by `npm ci` anyway; cache npm's download cache instead
+    - npm ci --cache "${CI_PROJECT_DIR}/.npm" --prefer-offline
   script:
     - npm run lint
     - npm run test
@@ -59,9 +85,12 @@ frontend_verify:
     # schema.ts must match fixtures/openapi.json (fix: scripts/regen-openapi.sh --frontend-only)
     - cp src/api/schema.ts /tmp/schema.ts && npm run generate:api && diff -u /tmp/schema.ts src/api/schema.ts
   rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CACHE_POLICY: pull-push
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH
-  tags: [shared]
+  tags: [remote]
 
 docker_publish:
   stage: deploy
@@ -81,7 +110,7 @@ docker_publish:
       --destination "${IMAGE_SHA}"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags: [shared]
+  tags: [remote]
 
 github_sync:
   stage: mirror
@@ -118,4 +147,4 @@ github_sync:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   when: on_success
-  tags: [shared]
+  tags: [remote]
