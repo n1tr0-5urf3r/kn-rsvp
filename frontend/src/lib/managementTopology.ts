@@ -9,7 +9,7 @@ export type MgmtNodeKind = 'switch' | 'server' | 'tofino' | 'text'
  *    rendered senior to (above) the switch row.
  *  - `switch`: a management switch.
  *  - `central`: an optional infrastructure gateway, rendered in its own row
- *    between the switches and everything else.
+ *    between the uplinks and the switches, since it routes into the uplinks.
  *  - `other`: everything else (regular servers, Tofinos, free-text ends).
  */
 export type MgmtNodeRank = 'uplink' | 'switch' | 'central' | 'other'

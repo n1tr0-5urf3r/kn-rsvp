@@ -153,23 +153,30 @@ const SINGLE_HEIGHT = 104
 const COLLAPSED_WIDTH = 88
 const COLLAPSED_HEIGHT = 56
 
+/** Top-to-bottom row order: the outside world, the gateway that routes into
+ * it, the switch fabric, and everything hanging off the switches. */
+const ROW_UPLINK = 0
+const ROW_CENTRAL = 1
+const ROW_SWITCH = 2
+const ROW_ENDPOINT = 3
+
 /** Row a node belongs to, purely from its rank/kind -- independent of layout. */
 function rowIndexForNode(node: MgmtNode): number {
   if (node.rank === 'uplink') {
-    return 0
+    return ROW_UPLINK
   }
   if (node.kind === 'switch') {
-    return 1
+    return ROW_SWITCH
   }
   if (node.rank === 'central') {
-    return 2
+    return ROW_CENTRAL
   }
-  return 3
+  return ROW_ENDPOINT
 }
 
 /** Whether a node's rail can face either direction (switches, and a gateway which
- * both receives from the switches above and may forward a free-text link
- * further down). Everything else only ever needs one rail. */
+ * receives its trunk from the switches below and may also have a free-text
+ * link facing up). Everything else only ever needs one rail. */
 function isDualRail(node: MgmtNode): boolean {
   return node.kind === 'switch' || node.rank === 'central'
 }
@@ -214,8 +221,8 @@ function connectionEdge(
   nodeId: string,
   rowIndexByNodeId: ReadonlyMap<string, number>,
 ): 'top' | 'bottom' {
-  const fromRow = rowIndexByNodeId.get(connection.fromNodeId) ?? 1
-  const toRow = rowIndexByNodeId.get(connection.toNodeId) ?? 1
+  const fromRow = rowIndexByNodeId.get(connection.fromNodeId) ?? ROW_SWITCH
+  const toRow = rowIndexByNodeId.get(connection.toNodeId) ?? ROW_SWITCH
   const isFrom = nodeId === connection.fromNodeId
   if (fromRow === toRow) {
     // Same-row links (switch <-> switch): both ends arc off the top.
@@ -930,15 +937,17 @@ export function ManagementTopologyPage() {
   for (const node of nodes) {
     byRow[rowIndexForNode(node)].push(node)
   }
-  byRow[1].sort((a, b) => a.switchOrder - b.switchOrder || a.label.localeCompare(b.label))
-  for (const row of [byRow[0], byRow[2]]) {
+  byRow[ROW_SWITCH].sort(
+    (a, b) => a.switchOrder - b.switchOrder || a.label.localeCompare(b.label),
+  )
+  for (const row of [byRow[ROW_UPLINK], byRow[ROW_CENTRAL]]) {
     row.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }))
   }
 
   // Put downstream devices in the same left-to-right order as the switch ports
   // feeding them. This removes most avoidable cable crossings while retaining
   // the physical port order on every switch rail.
-  const switchById = new Map(byRow[1].map((node) => [node.id, node]))
+  const switchById = new Map(byRow[ROW_SWITCH].map((node) => [node.id, node]))
   const downstreamKey = (node: MgmtNode): [number, string, string] => {
     const candidates = connections
       .filter(
@@ -958,8 +967,10 @@ export function ManagementTopologyPage() {
       )
     return candidates[0] ?? [Number.MAX_SAFE_INTEGER, '', node.label]
   }
-  const downstreamKeys = new Map(byRow[3].map((node) => [node.id, downstreamKey(node)]))
-  byRow[3].sort((a, b) => {
+  const downstreamKeys = new Map(
+    byRow[ROW_ENDPOINT].map((node) => [node.id, downstreamKey(node)]),
+  )
+  byRow[ROW_ENDPOINT].sort((a, b) => {
     const aKey = downstreamKeys.get(a.id)!
     const bKey = downstreamKeys.get(b.id)!
     return (
@@ -980,26 +991,30 @@ export function ManagementTopologyPage() {
     )
   }
 
-  const endpointNodes = orderRow(byRow[3])
-  const endpointMidpoint = Math.ceil(endpointNodes.length / 2)
-
   const rowDefs: { key: string; title: string; align: 'left' | 'center'; nodes: MgmtNode[] }[] = [
     {
       key: 'uplink',
       title: 'Uplinks to the outside world',
       align: 'center' as const,
-      nodes: orderRow(byRow[0]),
+      nodes: orderRow(byRow[ROW_UPLINK]),
     },
-    { key: 'switch', title: 'Management switches', align: 'center' as const, nodes: byRow[1] },
+    {
+      key: 'central',
+      title: 'Gateway',
+      align: 'center' as const,
+      nodes: orderRow(byRow[ROW_CENTRAL]),
+    },
+    {
+      key: 'switch',
+      title: 'Management switches',
+      align: 'center' as const,
+      nodes: byRow[ROW_SWITCH],
+    },
     {
       key: 'endpoints',
-      title: 'Infrastructure, servers, Tofinos & other endpoints',
+      title: 'Servers, Tofinos & other endpoints',
       align: 'center' as const,
-      nodes: [
-        ...endpointNodes.slice(0, endpointMidpoint),
-        ...orderRow(byRow[2]),
-        ...endpointNodes.slice(endpointMidpoint),
-      ],
+      nodes: orderRow(byRow[ROW_ENDPOINT]),
     },
   ].filter((row) => row.nodes.length > 0)
 
@@ -1044,37 +1059,9 @@ export function ManagementTopologyPage() {
     specs.reduce((total, spec) => total + spec.width, 0) +
     Math.max(specs.length - 1, 0) * NODE_GAP
 
-  const pinnedEndpointParts = (row: (typeof specsByRow)[number]) => {
-    if (row.key !== 'endpoints') {
-      return null
-    }
-    const firstCentral = row.specs.findIndex((spec) => spec.node.rank === 'central')
-    const lastCentral = row.specs.findLastIndex((spec) => spec.node.rank === 'central')
-    if (firstCentral === -1 || lastCentral === -1) {
-      return null
-    }
-    return {
-      left: row.specs.slice(0, firstCentral),
-      center: row.specs.slice(firstCentral, lastCentral + 1),
-      right: row.specs.slice(lastCentral + 1),
-    }
-  }
-
-  const visualRowWidth = (row: (typeof specsByRow)[number]) => {
-    const parts = pinnedEndpointParts(row)
-    if (!parts) {
-      return rowWidth(row.specs)
-    }
-    return (
-      Math.max(rowWidth(parts.left), rowWidth(parts.right)) * 2 +
-      rowWidth(parts.center) +
-      NODE_GAP * 2
-    )
-  }
-
   const totalWidth = Math.max(
     720,
-    ...specsByRow.map((row) => visualRowWidth(row) + PAD * 2),
+    ...specsByRow.map((row) => rowWidth(row.specs) + PAD * 2),
   )
 
   let y = PAD
@@ -1092,21 +1079,9 @@ export function ManagementTopologyPage() {
       }
     }
 
-    const pinnedParts = pinnedEndpointParts(row)
-    if (pinnedParts) {
-      const centerWidth = rowWidth(pinnedParts.center)
-      const centerX = (totalWidth - centerWidth) / 2
-      placeSequence(
-        pinnedParts.left,
-        centerX - NODE_GAP - rowWidth(pinnedParts.left),
-      )
-      placeSequence(pinnedParts.center, centerX)
-      placeSequence(pinnedParts.right, centerX + centerWidth + NODE_GAP)
-    } else {
-      const w = rowWidth(row.specs)
-      const x = row.align === 'center' ? Math.max(PAD, (totalWidth - w) / 2) : PAD
-      placeSequence(row.specs, x)
-    }
+    const w = rowWidth(row.specs)
+    const x = row.align === 'center' ? Math.max(PAD, (totalWidth - w) / 2) : PAD
+    placeSequence(row.specs, x)
     renderRows.push({ title: row.title, layouts: placed })
     const rowHeight = Math.max(...row.specs.map((spec) => spec.height), COLLAPSED_HEIGHT)
     y += rowHeight + ROW_GAP

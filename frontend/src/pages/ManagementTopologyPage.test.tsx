@@ -214,6 +214,29 @@ afterEach(() => {
 })
 
 describe('ManagementTopologyPage', () => {
+  it('places the central gateway between the uplinks and the switches', async () => {
+    mockApi()
+    renderPage()
+
+    await screen.findByText('Gateway')
+    const top = (nodeId: string) => {
+      const element = document.querySelector<HTMLElement>(
+        `[data-topology-node-id="${nodeId}"]`,
+      )
+      expect(element).not.toBeNull()
+      return Number.parseFloat(element!.style.top)
+    }
+
+    const uplink = top('text:p-wsi')
+    const gateway = top('server:srv-ortef')
+    const switchRow = top('switch:sw-a')
+    const endpoint = top('server:srv-chucky')
+    expect(uplink).toBeLessThan(gateway)
+    expect(gateway).toBeLessThan(switchRow)
+    expect(switchRow).toBeLessThan(endpoint)
+    expect(top('switch:sw-b')).toBe(switchRow)
+  })
+
   it('searches a hostname and traces it through Ortef to WSI', async () => {
     const user = userEvent.setup()
     const beginElement = vi.fn()
